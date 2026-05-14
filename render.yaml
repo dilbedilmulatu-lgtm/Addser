@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: kaleb-server-4
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+    healthCheckPath: /ping
+    autoDeploy: true
+    scaling:
+      minInstances: 1
+      maxInstances: 1
+    disk:
+      name: server-data
+      mountPath: /data
+      sizeGB: 1
