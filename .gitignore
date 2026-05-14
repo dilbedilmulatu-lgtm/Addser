@@ -1,0 +1,60 @@
+# Python
+pycache/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Telegram Sessions & Data
+*.session
+*.session-journal
+accounts.json
+auto_add_settings.json
+stats.json
+daily_adds.json
+worker_adds.json
+temp_sessions.json
+server_admin.json
+
+# Temporary files
+temp_*.json
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Sensitive files
+# Keep your actual server.py safe!
+# Don't commit if it contains real credentials
+# *-credentials.json
+# *-secrets.json
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# Render
+.render/
