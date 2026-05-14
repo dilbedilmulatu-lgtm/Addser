@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Manager - Auto-Add System</title>
+    <style>
+        body {
+            background: #0e1621;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 span {
+            background: #4c9ce0;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 30px;
+        }
+        .header {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            border: 1px solid #2b3945;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-btn {
+            background: #2b3945;
+            color: #6ab2f2;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            background: #3a4a5a;
+        }
+        .nav-btn.active {
+            background: #4c9ce0;
+            color: white;
+        }
+        .account-card {
+            background: #17212b;
+            border: 1px solid #2b3945;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .account-card:hover {
+            background: #1e2a36;
+            transform: translateX(5px);
+        }
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2b5278, #4c9ce0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .details h3 {
+            margin: 0 0 5px 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .details p {
+            margin: 0;
+            color: #8e9fad;
+            font-size: 0.9rem;
+        }
+        .badge {
+            background: #4c9ce0;
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 30px;
+        }
+        .badge.success {
+            background: #1e4a2b;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background: #2b3945;
+            color: #6ab2f2;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #3a4a5a;
+            transform: translateY(-1px);
+        }
+        button.terminate {
+            background: #8e2b2b;
+            color: white;
+        }
+        button.terminate:hover {
+            background: #a53333;
+        }
+        button.auto-add {
+            background: #2b5278;
+            color: white;
+        }
+        button.auto-add:hover {
+            background: #4c9ce0;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #17212b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: 1px solid #2b3945;
+            display: none;
+            z-index: 1000;
+        }
+        .toast.show {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            color: #8e9fad;
+            padding: 40px;
+        }
+        .stats-bar {
+            background: #17212b;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #2b3945;
+        }
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4c9ce0;
+        }
+        .stat-label {
+            color: #8e9fad;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 700px) {
+            .account-card {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            .actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .stats-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                📱 Account Manager 
+                <span>Auto-Add System</span>
+            </h1>
+            <div class="nav-buttons">
+                <a href="/dashboard" class="nav-btn">💬 Dashboard</a>
+                <a href="/auto-add" class="nav-btn">👥 Auto-Add</a>
+                <a href="/all" class="nav-btn">🔐 Devices</a>
+                <a href="/login" class="nav-btn">➕ Add Account</a>
+            </div>
+        </div>
+
+        <div class="stats-bar" id="statsBar">
+            <div class="stat">
+                <span class="stat-value" id="totalAccounts">0</span>
+                <span class="stat-label">Total Accounts</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="autoAddActive">0</span>
+                <span class="stat-label">Auto-Add Active</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="totalAddedToday">0</span>
+                <span class="stat-label">Members Added Today</span>
+            </div>
+        </div>
+
+        <div id="accountsList">
+            <div class="loading">Loading accounts...</div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const toast = document.getElementById('toast');
+        
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function loadAccounts() {
+            try {
+                const res = await fetch('/api/accounts');
+                const data = await res.json();
+                
+                if (data.success) {
+                    displayAccounts(data.accounts);
+                    await loadStats(data.accounts);
+                } else {
+                    showToast('Failed to load accounts', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error loading accounts', 'error');
+            }
+        }
+
+        async function loadStats(accounts) {
+            const totalAccounts = accounts.length;
+            const autoAddActive = accounts.filter(acc => acc.auto_add_enabled !== false).length;
+            
+            // Calculate total added today across all accounts
+            let totalAddedToday = 0;
+            for (const acc of accounts) {
+                try {
+                    const statsRes = await fetch(`/api/auto-add-stats?accountId=${acc.id}`);
+                    const statsData = await statsRes.json();
+                    if (statsData.success) {
+                        totalAddedToday += statsData.added_today || 0;
+                    }
+                } catch (e) {
+                    console.error('Error loading stats for account', acc.id);
+                }
+            }
+            
+            document.getElementById('totalAccounts').textContent = totalAccounts;
+            document.getElementById('autoAddActive').textContent = autoAddActive;
+            document.getElementById('totalAddedToday').textContent = totalAddedToday;
+        }
+
+        function displayAccounts(accounts) {
+            const container = document.getElementById('accountsList');
+            
+            if (!accounts.length) {
+                container.innerHTML = '<div class="loading">No accounts found. <a href="/login" style="color:#6ab2f6;">Add one</a></div>';
+                return;
+            }
+            
+            let html = '';
+            accounts.forEach(acc => {
+                const initial = (acc.name || '?').charAt(0).toUpperCase();
+                const autoAddStatus = acc.auto_add_enabled !== false;
+                
+                html += `
+                    <div class="account-card" id="account-${acc.id}">
+                        <div class="account-info">
+                            <div class="avatar">${escapeHtml(initial)}</div>
+                            <div class="details">
+                                <h3>
+                                    ${escapeHtml(acc.name)}
+                                    ${autoAddStatus ? '<span class="badge success">🤖 Auto-Add ON</span>' : '<span class="badge">⏸️ Auto-Add OFF</span>'}
+                                </h3>
+                                <p>${escapeHtml(acc.phone)}</p>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button onclick="viewAutoAddSettings(${acc.id})" class="auto-add">⚙️ Settings</button>
+                            <button onclick="terminateSessions(${acc.id})" class="terminate">🔐 Terminate Others</button>
+                            <button onclick="removeAccount(${acc.id})">🗑️ Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        async function viewAutoAddSettings(accountId) {
+            window.location.href = `/auto-add?account=${accountId}`;
+        }
+
+        async function terminateSessions(accountId) {
+            if (!confirm('⚠️ This will log out ALL other devices connected to this account.\n\nYour current session will remain active.\n\nContinue?')) return;
+            
+            try {
+                const res = await fetch('/api/terminate-sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast(data.message || 'Sessions terminated successfully');
+                } else {
+                    showToast(data.error || 'Failed to terminate sessions', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error terminating sessions', 'error');
+            }
+        }
+
+        async function removeAccount(accountId) {
+            if (!confirm('⚠️ Are you sure you want to remove this account?\n\nThis will stop all auto-add activities for this account.')) return;
+            
+            try {
+                const res = await fetch('/api/remove-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Account removed successfully');
+                    loadAccounts(); // Refresh list
+                } else {
+                    showToast(data.error || 'Failed to remove account', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error removing account', 'error');
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load accounts on page load and refresh every 30 seconds
+        window.addEventListener('load', () => {
+            loadAccounts();
+            setInterval(() => loadAccounts(), 30000);
+        });
+    </script>
+</body>
+</html>

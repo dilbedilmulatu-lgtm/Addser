@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Manager - Telegram Auto-Add</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #0e1621;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #2b3945;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #fff;
+        }
+
+        .header p {
+            color: #8e9fad;
+            margin-top: 8px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            background: #2b3945;
+            color: #6ab2f2;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: #3a4a5a;
+        }
+
+        .account-selector {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #2b3945;
+        }
+
+        .account-selector h3 {
+            color: #8e9fad;
+            margin-bottom: 16px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .account-card {
+            background: #242f3d;
+            border: 2px solid #2b3945;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .account-card:hover {
+            background: #2b3945;
+        }
+
+        .account-card.selected {
+            border-color: #4c9ce0;
+            background: #2b5278;
+        }
+
+        .account-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2b5278, #4c9ce0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .account-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .account-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .account-info p {
+            font-size: 0.8rem;
+            color: #8e9fad;
+        }
+
+        .auto-add-badge {
+            background: #1e4a2b;
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        /* Account Age Badge */
+        .account-age-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #2b5278, #1e3a4a);
+            color: #6ab2f2;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 30px;
+            margin-top: 6px;
+            border: 1px solid #4c9ce0;
+        }
+
+        .account-age-badge.older {
+            background: linear-gradient(135deg, #1e6e2b, #1a4a22);
+            color: #4c9e4c;
+            border-color: #4c9e4c;
+        }
+
+        .account-age-badge.newer {
+            background: linear-gradient(135deg, #8e6b2b, #6e4a1e);
+            color: #ffaa00;
+            border-color: #ffaa00;
+        }
+
+        .account-age-icon {
+            font-size: 0.8rem;
+        }
+
+        .devices-section {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #2b3945;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            color: #fff;
+        }
+
+        .terminate-all-btn {
+            background: #8e2b2b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminate-all-btn:hover:not(:disabled) {
+            background: #a53333;
+        }
+
+        .terminate-all-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .devices-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .device-item {
+            background: #242f3d;
+            border: 1px solid #2b3945;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .device-item.current {
+            border-color: #4c9ce0;
+            background: #1e3a4a;
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .device-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2b3945;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .device-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .current-badge {
+            background: #4c9ce0;
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 30px;
+            text-transform: uppercase;
+        }
+
+        .device-details p {
+            color: #8e9fad;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .device-details p span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .device-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .terminate-btn {
+            background: #8e2b2b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .terminate-btn:hover:not(:disabled) {
+            background: #a53333;
+        }
+
+        .terminate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Account Age Info Box */
+        .age-info-box {
+            background: linear-gradient(135deg, #1e3a4a, #17212b);
+            border: 1px solid #4c9ce0;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .age-icon {
+            font-size: 2rem;
+        }
+
+        .age-details h4 {
+            color: #6ab2f2;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .age-details p {
+            color: #8e9fad;
+            font-size: 0.85rem;
+        }
+
+        .age-details .age-year {
+            color: #4c9ce0;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .age-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .age-stat {
+            background: #242f3d;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .age-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #6ab2f2;
+        }
+
+        .age-stat-label {
+            font-size: 0.7rem;
+            color: #8e9fad;
+            text-transform: uppercase;
+        }
+
+        .info-message {
+            background: #1e3a4a;
+            border: 1px solid #4c9ce0;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #8e9fad;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-message.warning {
+            background: #4a2b2b;
+            border-color: #e04c4c;
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8e9fad;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #8e9fad;
+            background: #242f3d;
+            border-radius: 12px;
+        }
+
+        .refresh-age-btn {
+            background: #2b3945;
+            color: #6ab2f2;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .refresh-age-btn:hover {
+            background: #3a4a5a;
+        }
+
+        .refresh-age-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #17212b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid #2b3945;
+            z-index: 1000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            border-left: 4px solid #4c9ce0;
+        }
+
+        .toast.error {
+            border-left: 4px solid #e04c4c;
+        }
+
+        .last-active {
+            color: #4c9ce0;
+        }
+
+        @media (max-width: 600px) {
+            .device-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .device-actions {
+                width: 100%;
+            }
+            
+            .terminate-btn {
+                width: 100%;
+            }
+
+            .account-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🔐 Device Manager</h1>
+                <p>Manage active sessions & view account age for your Telegram accounts</p>
+            </div>
+            <div class="nav-buttons">
+                <a href="/dashboard" class="nav-btn">📱 Dashboard</a>
+                <a href="/dash" class="nav-btn">⚙️ Account Manager</a>
+                <a href="/auto-add" class="nav-btn">👥 Auto-Add</a>
+            </div>
+        </div>
+
+        <div class="account-selector">
+            <h3>Select Account</h3>
+            <div class="account-grid" id="accountList">
+                <div class="loading">Loading accounts...</div>
+            </div>
+        </div>
+
+        <div id="infoMessage" class="info-message">
+            <span class="info-icon">ℹ️</span>
+            <span>Select an account to view its details, age, and manage active sessions</span>
+        </div>
+
+        <!-- Account Age Display -->
+        <div id="accountAgeBox" style="display: none;">
+            <div class="age-info-box" id="ageInfoBox">
+                <span class="age-icon">📅</span>
+                <div class="age-details">
+                    <h4>Account Information</h4>
+                    <p id="accountAgeDisplay">Loading age information...</p>
+                    <div class="age-stats" id="ageStats">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+                <button class="refresh-age-btn" id="refreshAgeBtn" onclick="refreshAccountAge()" style="margin-left: auto;">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="devices-section" id="devicesSection" style="display: none;">
+            <div class="section-header">
+                <h2>📱 Active Sessions</h2>
+                <button class="terminate-all-btn" id="terminateAllBtn" onclick="terminateAllSessions()">
+                    ⚡ Terminate All Other Sessions
+                </button>
+            </div>
+
+            <div id="devicesLoading" class="loading" style="display: none;">
+                Loading sessions...
+            </div>
+
+            <div id="devicesList" class="devices-list"></div>
+
+            <div id="warningMessage" class="info-message warning" style="display: none;">
+                <span class="info-icon">⚠️</span>
+                <span>You cannot terminate sessions within 24 hours of logging in</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let accounts = [];
+        let selectedAccount = null;
+        let currentDevices = [];
+
+        const toast = document.getElementById('toast');
+        const accountList = document.getElementById('accountList');
+        const infoMessage = document.getElementById('infoMessage');
+        const accountAgeBox = document.getElementById('accountAgeBox');
+        const devicesSection = document.getElementById('devicesSection');
+        const devicesList = document.getElementById('devicesList');
+        const devicesLoading = document.getElementById('devicesLoading');
+        const warningMessage = document.getElementById('warningMessage');
+        const terminateAllBtn = document.getElementById('terminateAllBtn');
+        const refreshAgeBtn = document.getElementById('refreshAgeBtn');
+
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown';
+            const date = new Date(timestamp * 1000);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            if (diffDays < 7) return `${diffDays} days ago`;
+            return date.toLocaleDateString();
+        }
+
+        async function loadAccounts() {
+            try {
+                const res = await fetch('/api/accounts');
+                const data = await res.json();
+                
+                if (data.success) {
+                    accounts = data.accounts || [];
+                    displayAccounts();
+                } else {
+                    showToast('Failed to load accounts', 'error');
+                }
+            } catch (err) {
+                console.error('Error loading accounts:', err);
+                showToast('Error loading accounts', 'error');
+            }
+        }
+
+        function getAccountAgeClass(ageData) {
+            if (!ageData || !ageData.year_joined) return '';
+            const yearJoined = ageData.year_joined;
+            const currentYear = new Date().getFullYear();
+            const ageYears = currentYear - yearJoined;
+            
+            if (ageYears >= 3) return 'older';
+            if (ageYears < 1) return 'newer';
+            return '';
+        }
+
+        function getAccountAgeIcon(ageData) {
+            if (!ageData || !ageData.year_joined) return '📅';
+            const yearJoined = ageData.year_joined;
+            const currentYear = new Date().getFullYear();
+            const ageYears = currentYear - yearJoined;
+            
+            if (ageYears >= 5) return '🏆';
+            if (ageYears >= 3) return '⭐';
+            if (ageYears >= 1) return '📅';
+            return '🆕';
+        }
+
+        function formatAccountAge(ageData) {
+            if (!ageData) return 'Unknown';
+            
+            if (ageData.age_display && ageData.age_display !== 'Unknown account age') {
+                return ageData.age_display;
+            }
+            
+            if (ageData.year_joined) {
+                return `Joined ${ageData.year_joined}`;
+            }
+            
+            return 'Age information not available';
+        }
+
+        function displayAccounts() {
+            if (!accounts.length) {
+                accountList.innerHTML = `
+                    <div class="empty-state">
+                        No accounts found.<br>
+                        <a href="/login" style="color:#6ab2f2;">Add an account</a> to manage sessions.
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            accounts.forEach(acc => {
+                const initial = (acc.name || '?').charAt(0).toUpperCase();
+                const isSelected = selectedAccount && selectedAccount.id === acc.id;
+                const autoAddBadge = acc.auto_add_enabled !== false ? 
+                    '<span style="background:#1e4a2b; font-size:0.65rem; padding:2px 6px; border-radius:30px; margin-left:5px;">🤖 Auto-Add</span>' : '';
+                
+                // Account age badge
+                const ageData = acc.account_age;
+                let ageBadge = '';
+                if (ageData && ageData.age_display && ageData.age_display !== 'Unknown account age') {
+                    const ageClass = getAccountAgeClass(ageData);
+                    const ageIcon = getAccountAgeIcon(ageData);
+                    ageBadge = `
+                        <span class="account-age-badge ${ageClass}">
+                            <span class="account-age-icon">${ageIcon}</span>
+                            ${escapeHtml(formatAccountAge(ageData))}
+                        </span>
+                    `;
+                } else if (ageData && ageData.year_joined) {
+                    const ageClass = getAccountAgeClass(ageData);
+                    const ageIcon = getAccountAgeIcon(ageData);
+                    ageBadge = `
+                        <span class="account-age-badge ${ageClass}">
+                            <span class="account-age-icon">${ageIcon}</span>
+                            Joined ${ageData.year_joined}
+                        </span>
+                    `;
+                }
+                
+                html += `
+                    <div class="account-card ${isSelected ? 'selected' : ''}" 
+                         onclick="selectAccount(${acc.id})">
+                        <div class="account-avatar">${escapeHtml(initial)}</div>
+                        <div class="account-info">
+                            <h4>${escapeHtml(acc.name || 'Unknown')} ${autoAddBadge}</h4>
+                            <p>${escapeHtml(acc.phone || '')}</p>
+                            ${ageBadge}
+                        </div>
+                    </div>
+                `;
+            });
+
+            accountList.innerHTML = html;
+        }
+
+        function displayAccountAge(ageData) {
+            const ageDetails = document.getElementById('accountAgeDisplay');
+            const ageStats = document.getElementById('ageStats');
+            
+            if (!ageData) {
+                ageDetails.innerHTML = 'Age information not available for this account.';
+                ageStats.innerHTML = '';
+                return;
+            }
+
+            let ageDisplay = '';
+            let statsHtml = '';
+
+            if (ageData.age_display && ageData.age_display !== 'Unknown account age') {
+                ageDisplay = `<span class="age-year">${escapeHtml(ageData.age_display)}</span>`;
+            } else if (ageData.year_joined) {
+                ageDisplay = `<span class="age-year">Joined in ${ageData.year_joined}</span>`;
+            } else {
+                ageDisplay = 'Age information not available';
+            }
+
+            // Build stats
+            const stats = [];
+            
+            if (ageData.year_joined) {
+                stats.push({
+                    value: ageData.year_joined,
+                    label: 'Year Joined'
+                });
+            }
+            
+            if (ageData.age_years !== null && ageData.age_years !== undefined) {
+                stats.push({
+                    value: ageData.age_years.toFixed(1),
+                    label: 'Years Old'
+                });
+            }
+            
+            if (ageData.age_days !== null && ageData.age_days !== undefined) {
+                stats.push({
+                    value: ageData.age_days.toLocaleString(),
+                    label: 'Days'
+                });
+            }
+            
+            if (ageData.method) {
+                stats.push({
+                    value: ageData.method.replace('_', ' '),
+                    label: 'Detection Method'
+                });
+            }
+
+            statsHtml = stats.map(stat => `
+                <div class="age-stat">
+                    <div class="age-stat-value">${escapeHtml(String(stat.value))}</div>
+                    <div class="age-stat-label">${escapeHtml(stat.label)}</div>
+                </div>
+            `).join('');
+
+            ageDetails.innerHTML = ageDisplay;
+            ageStats.innerHTML = statsHtml;
+        }
+
+        async function selectAccount(accountId) {
+            const account = accounts.find(a => a.id === accountId);
+            if (!account) return;
+
+            selectedAccount = account;
+            displayAccounts();
+
+            // Show account age
+            accountAgeBox.style.display = 'block';
+            
+            // Display age from account data if available, otherwise try to fetch
+            if (account.account_age) {
+                displayAccountAge(account.account_age);
+            } else {
+                document.getElementById('accountAgeDisplay').innerHTML = 'Fetching age information...';
+                document.getElementById('ageStats').innerHTML = '';
+                await refreshAccountAge();
+            }
+
+            // Show devices section
+            devicesSection.style.display = 'block';
+            devicesLoading.style.display = 'block';
+            devicesList.innerHTML = '';
+            warningMessage.style.display = 'none';
+            infoMessage.style.display = 'none';
+            terminateAllBtn.disabled = true;
+
+            await loadDevices(accountId);
+        }
+
+        async function refreshAccountAge() {
+            if (!selectedAccount) return;
+            
+            refreshAgeBtn.disabled = true;
+            refreshAgeBtn.innerHTML = '🔄 Loading...';
+            
+            try {
+                const res = await fetch('/api/account-age', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId: selectedAccount.id })
+                });
+
+                const data = await res.json();
+                
+                if (data.success && data.account_age) {
+                    // Update the selected account with new age data
+                    selectedAccount.account_age = data.account_age;
+                    
+                    // Update accounts array
+                    const accIndex = accounts.findIndex(a => a.id === selectedAccount.id);
+                    if (accIndex !== -1) {
+                        accounts[accIndex].account_age = data.account_age;
+                    }
+                    
+                    displayAccountAge(data.account_age);
+                    displayAccounts(); // Refresh account list to show updated badges
+                    
+                    if (data.cached) {
+                        showToast('Account age loaded from cache');
+                    } else {
+                        showToast('Account age refreshed successfully');
+                    }
+                } else {
+                    showToast(data.error || 'Failed to get account age', 'error');
+                    document.getElementById('accountAgeDisplay').innerHTML = 
+                        'Could not determine account age. <button class="refresh-age-btn" onclick="refreshAccountAge()">Try Again</button>';
+                }
+            } catch (err) {
+                console.error('Error refreshing account age:', err);
+                showToast('Error fetching account age', 'error');
+            } finally {
+                refreshAgeBtn.disabled = false;
+                refreshAgeBtn.innerHTML = '🔄 Refresh';
+            }
+        }
+
+        async function loadDevices(accountId) {
+            try {
+                const res = await fetch('/api/get-sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId })
+                });
+
+                const data = await res.json();
+                
+                devicesLoading.style.display = 'none';
+
+                if (data.success) {
+                    currentDevices = data.sessions || [];
+                    
+                    // Update age if returned from API
+                    if (data.account_age) {
+                        selectedAccount.account_age = data.account_age;
+                        displayAccountAge(data.account_age);
+                    }
+                    
+                    displayDevices(data);
+                } else {
+                    if (data.error === 'fresh_reset_forbidden') {
+                        warningMessage.style.display = 'flex';
+                        devicesList.innerHTML = '';
+                    } else {
+                        showToast(data.error || 'Failed to load sessions', 'error');
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading devices:', err);
+                devicesLoading.style.display = 'none';
+                showToast('Error loading sessions', 'error');
+            }
+        }
+
+        function displayDevices(data) {
+            const { sessions, current_hash } = data;
+            
+            if (!sessions || sessions.length === 0) {
+                devicesList.innerHTML = '<div class="empty-state">No active sessions found</div>';
+                terminateAllBtn.disabled = true;
+                return;
+            }
+
+            const otherSessions = sessions.filter(s => s.hash !== current_hash);
+            terminateAllBtn.disabled = otherSessions.length === 0;
+
+            let html = '';
+            sessions.forEach(session => {
+                const isCurrent = session.hash === current_hash;
+                const lastActive = formatDate(session.date_active);
+                
+                html += `
+                    <div class="device-item ${isCurrent ? 'current' : ''}">
+                        <div class="device-info">
+                            <div class="device-icon">${getDeviceIcon(session.device_model)}</div>
+                            <div class="device-details">
+                                <h4>
+                                    ${escapeHtml(session.device_model || 'Unknown Device')}
+                                    ${isCurrent ? '<span class="current-badge">Current</span>' : ''}
+                                </h4>
+                                <p>
+                                    <span>📱 ${escapeHtml(session.platform || 'Unknown')}</span>
+                                    <span>🌐 ${escapeHtml(session.ip || 'Unknown IP')}</span>
+                                    <span>📍 ${escapeHtml(session.country || 'Unknown')}</span>
+                                    <span class="last-active">🕐 Last active: ${lastActive}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="device-actions">
+                            ${!isCurrent ? `
+                                <button class="terminate-btn" onclick="terminateSession('${session.hash}')">
+                                    Terminate
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            devicesList.innerHTML = html;
+        }
+
+        function getDeviceIcon(device) {
+            if (!device) return '📱';
+            device = device.toLowerCase();
+            if (device.includes('iphone')) return '📱';
+            if (device.includes('ipad')) return '📱';
+            if (device.includes('android')) return '📱';
+            if (device.includes('windows')) return '💻';
+            if (device.includes('mac')) return '💻';
+            if (device.includes('linux')) return '🐧';
+            if (device.includes('web')) return '🌐';
+            return '📱';
+        }
+
+        async function terminateSession(hash) {
+            if (!selectedAccount) return;
+            
+            if (!confirm('Are you sure you want to terminate this session?')) return;
+
+            try {
+                const res = await fetch('/api/terminate-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        accountId: selectedAccount.id,
+                        hash: hash 
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Session terminated successfully');
+                    await loadDevices(selectedAccount.id);
+                } else {
+                    showToast(data.error || 'Failed to terminate session', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Error terminating session', 'error');
+            }
+        }
+
+        async function terminateAllSessions() {
+            if (!selectedAccount) return;
+            
+            if (!confirm('This will terminate ALL other active sessions. Continue?')) return;
+
+            try {
+                const res = await fetch('/api/terminate-sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId: selectedAccount.id })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast(data.message || 'All other sessions terminated');
+                    await loadDevices(selectedAccount.id);
+                } else {
+                    if (data.error && data.error.includes('24 hours')) {
+                        warningMessage.style.display = 'flex';
+                    }
+                    showToast(data.error || 'Failed to terminate sessions', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showToast('Error terminating sessions', 'error');
+            }
+        }
+
+        window.addEventListener('load', loadAccounts);
+    </script>
+</body>
+</html>

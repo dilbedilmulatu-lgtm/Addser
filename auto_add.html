@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Add Members - Unlimited</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #0e1621;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #17212b 0%, #1a2430 100%);
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+            border: 1px solid #2b3945;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .header-left h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-left h1 span {
+            background: linear-gradient(135deg, #4c9ce0, #6ab2f2);
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .header-left p {
+            color: #8e9fad;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .server-info {
+            background: #242f3d;
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid #2b3945;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .server-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #6ab2f2;
+        }
+
+        .server-label {
+            font-size: 0.7rem;
+            color: #8e9fad;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #2b3945;
+            color: #6ab2f2;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-btn:hover {
+            background: #3a4a5a;
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #4c9ce0, #6ab2f2);
+            color: white;
+        }
+
+        /* Account Selector */
+        .account-selector {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #2b3945;
+        }
+
+        .account-selector h3 {
+            color: #8e9fad;
+            margin-bottom: 16px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .account-card {
+            background: #242f3d;
+            border: 2px solid #2b3945;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .account-card:hover {
+            background: #2b3945;
+            transform: translateY(-2px);
+        }
+
+        .account-card.selected {
+            border-color: #4c9ce0;
+            background: linear-gradient(135deg, #2b5278, #1e4a6e);
+        }
+
+        .account-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2b5278, #4c9ce0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .account-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .account-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-info p {
+            font-size: 0.85rem;
+            color: #8e9fad;
+        }
+
+        .auto-add-badge {
+            display: inline-block;
+            background: #1e4a2b;
+            color: #4c9e4c;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 30px;
+            margin-top: 5px;
+        }
+
+        .auto-add-badge.active {
+            background: #1e6e2b;
+            color: #6ab2f2;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .remove-account-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            color: #8e2b2b;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .account-card:hover .remove-account-btn {
+            opacity: 1;
+        }
+
+        .remove-account-btn:hover {
+            background: #8e2b2b;
+            color: white;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #17212b 0%, #1a2430 100%);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #2b3945;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4c9ce0, #6ab2f2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4c9ce0, #6ab2f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #8e9fad;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #2b3945;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2b3945;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2b3945;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #4c9ce0, #6ab2f2);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #8e9fad;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #242f3d;
+            border: 1px solid #2b3945;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #4c9ce0;
+            box-shadow: 0 0 0 2px rgba(76, 156, 224, 0.2);
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-button .form-input {
+            flex: 1;
+        }
+
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-group input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #2b3945;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4c9ce0;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-value {
+            background: #2b3945;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #4c9ce0;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        /* Buttons */
+        .button {
+            background: #2b3945;
+            color: #6ab2f2;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .button:hover {
+            background: #3a4a5a;
+            transform: translateY(-1px);
+        }
+
+        .button.primary {
+            background: linear-gradient(135deg, #4c9ce0, #6ab2f2);
+            color: white;
+        }
+
+        .button.primary:hover {
+            background: linear-gradient(135deg, #5dace8, #7ac2f8);
+        }
+
+        .button.success {
+            background: linear-gradient(135deg, #1e6e2b, #2a8e3a);
+            color: white;
+        }
+
+        .button.small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: #1e3a4a;
+            border: 1px solid #4c9ce0;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-box.warning {
+            background: #4a2b2b;
+            border-color: #e04c4c;
+        }
+
+        .info-box.success {
+            background: linear-gradient(135deg, #1e4a2b, #1a3a22);
+            border-color: #4c9e4c;
+        }
+
+        .info-icon {
+            font-size: 1.8rem;
+        }
+
+        /* Activity Log */
+        .log-section {
+            background: #17212b;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #2b3945;
+            margin-top: 24px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .log-header h3 {
+            font-size: 1.2rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .log-container {
+            background: #1e2a36;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            border-bottom: 1px solid #2b3945;
+            color: #8e9fad;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.success { color: #4c9e4c; }
+        .log-entry.error { color: #ff6b6b; }
+        .log-entry.warning { color: #ffaa00; }
+        .log-entry.info { color: #6ab2f2; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #17212b;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid #2b3945;
+            z-index: 1000;
+            display: none;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .toast.show { display: block; }
+        .toast.success { border-left: 4px solid #4c9ce0; }
+        .toast.error { border-left: 4px solid #e04c4c; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8e9fad;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #2b3945;
+            border-radius: 50%;
+            border-top-color: #4c9ce0;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #8e9fad;
+            background: #242f3d;
+            border-radius: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .account-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .button-group .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>
+                    🚀 Auto-Add Members 
+                    <span>UNLIMITED</span>
+                </h1>
+                <p>Add unlimited members to your target group • Auto-join • Multi-source</p>
+            </div>
+            <div class="server-info">
+                <div class="server-label">Server</div>
+                <div class="server-name" id="serverNameDisplay">Loading...</div>
+            </div>
+            <div class="nav-buttons">
+                <a href="/dashboard" class="nav-btn">📱 Dashboard</a>
+                <a href="/dash" class="nav-btn">⚙️ Accounts</a>
+                <a href="/all" class="nav-btn">🔐 Devices</a>
+                <a href="/login" class="nav-btn">➕ Add Account</a>
+            </div>
+        </div>
+
+        <!-- Account Selector -->
+        <div class="account-selector">
+            <h3>
+                👤 SELECT ACCOUNT
+                <span style="color: #8e9fad; font-size: 0.8rem;" id="accountCount">0 accounts</span>
+            </h3>
+            <div class="account-grid" id="accountList">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Loading accounts...
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Settings (hidden until account selected) -->
+        <div id="mainSettings" style="display: none;">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="addedToday">0</div>
+                    <div class="stat-label">Added Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalAdded">0</div>
+                    <div class="stat-label">Total Added</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="membersAvailable">--</div>
+                    <div class="stat-label">Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="delayDisplay">25s</div>
+                    <div class="stat-label">Delay</div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="settings-section">
+                <div class="section-header">
+                    <h2>⚙️ Auto-Add Configuration</h2>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoAddToggle" onchange="toggleAutoAdd()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="info-box warning" id="warningBox" style="display: none;">
+                    <span class="info-icon">⚠️</span>
+                    <div>
+                        <strong>ANTI-BAN PROTECTION ACTIVE</strong>
+                        <p style="margin-top: 5px;">Minimum 25 second delay between adds. Smart source rotation to avoid detection.</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>🎯 Target Group Username</label>
+                    <div class="input-with-button">
+                        <input type="text" id="targetGroup" class="form-input" value="Abe_armygroup" placeholder="@username">
+                        <button class="button" onclick="checkGroup()">🔍 Check</button>
+                    </div>
+                    <p style="color: #8e9fad; font-size: 0.8rem; margin-top: 5px;">
+                        Link: <a id="groupLinkInput" target="_blank" style="color: #6ab2f2;">t.me/Abe_armygroup</a>
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>⏱️ Delay Between Adds (seconds)</label>
+                    <div class="range-group">
+                        <input type="range" id="delayRange" min="25" max="120" value="25" step="5" oninput="updateDelay()">
+                        <span class="range-value" id="delayValue">25s</span>
+                    </div>
+                    <p style="color: #8e9fad; font-size: 0.8rem; margin-top: 5px;">Recommended: 25-35 seconds to avoid Telegram bans</p>
+                </div>
+
+                <div class="button-group">
+                    <button class="button primary" onclick="saveSettings()">💾 Save Settings</button>
+                    <button class="button success" onclick="testConnection()">🔍 Test & Find Members</button>
+                    <button class="button" onclick="sendManualReport()">📊 Send Report</button>
+                </div>
+            </div>
+
+            <!-- Status Box -->
+            <div class="info-box" id="statusBox" style="display: none;">
+                <span class="info-icon" id="statusIcon">⏸️</span>
+                <div>
+                    <strong id="statusTitle">Auto-Add Disabled</strong>
+                    <p id="statusMessage" style="margin-top: 5px;">Enable auto-add to start adding members to your target group (UNLIMITED mode)</p>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="log-section">
+                <div class="log-header">
+                    <h3>📋 Activity Log</h3>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="button small" onclick="refreshLog()">↻ Refresh</button>
+                        <button class="button small" onclick="clearLogDisplay()">Clear</button>
+                    </div>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">Select an account and enable auto-add to see activity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Account Message -->
+        <div id="noAccountMessage" class="info-box" style="display: flex;">
+            <span class="info-icon">👆</span>
+            <div>
+                <strong>Select an account or add a new one</strong>
+                <p style="margin-top: 5px;">
+                    Choose an existing account from above or 
+                    <a href="/login" style="color: #6ab2f2;">add a new account</a> 
+                    to configure auto-add settings.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============ STATE ============
+        let accounts = [];
+        let selectedAccount = null;
+        let currentSettings = {
+            enabled: false,
+            target_group: 'Abe_armygroup',
+            delay_seconds: 25,
+            auto_join: true,
+            added_today: 0,
+            total_added: 0
+        };
+        let activityLog = [];
+        let refreshInterval = null;
+        let serverName = 'Server';
+
+        // ============ DOM ELEMENTS ============
+        const toast = document.getElementById('toast');
+        const accountList = document.getElementById('accountList');
+        const accountCount = document.getElementById('accountCount');
+        const mainSettings = document.getElementById('mainSettings');
+        const noAccountMessage = document.getElementById('noAccountMessage');
+        const autoAddToggle = document.getElementById('autoAddToggle');
+        const targetGroup = document.getElementById('targetGroup');
+        const delayRange = document.getElementById('delayRange');
+        const delayValue = document.getElementById('delayValue');
+        const addedToday = document.getElementById('addedToday');
+        const totalAdded = document.getElementById('totalAdded');
+        const membersAvailable = document.getElementById('membersAvailable');
+        const delayDisplay = document.getElementById('delayDisplay');
+        const warningBox = document.getElementById('warningBox');
+        const statusBox = document.getElementById('statusBox');
+        const logContainer = document.getElementById('logContainer');
+        const groupLinkInput = document.getElementById('groupLinkInput');
+        const serverNameDisplay = document.getElementById('serverNameDisplay');
+
+        // ============ HELPER FUNCTIONS ============
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            activityLog.unshift({ message, type, time: timestamp });
+            if (activityLog.length > 100) activityLog.pop();
+            updateLogDisplay();
+        }
+
+        function updateLogDisplay() {
+            if (!logContainer) return;
+            if (activityLog.length === 0) {
+                logContainer.innerHTML = '<div class="log-entry">No activity yet</div>';
+                return;
+            }
+            let html = '';
+            activityLog.forEach(log => {
+                html += `<div class="log-entry ${log.type}">[${log.time}] ${escapeHtml(log.message)}</div>`;
+            });
+            logContainer.innerHTML = html;
+            logContainer.scrollTop = 0;
+        }
+
+        function clearLogDisplay() {
+            activityLog = [];
+            updateLogDisplay();
+            addLog('Log cleared', 'info');
+        }
+
+        function refreshLog() {
+            addLog('Log refreshed', 'info');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updateDelay() {
+            const val = delayRange.value;
+            delayValue.textContent = val + 's';
+            delayDisplay.textContent = val + 's';
+        }
+
+        function updateGroupLink() {
+            const groupName = targetGroup.value.trim().replace('@', '').replace('https://t.me/', '');
+            const link = `https://t.me/${groupName}`;
+            groupLinkInput.href = link;
+            groupLinkInput.textContent = `t.me/${groupName}`;
+        }
+
+        // ============ SERVER INFO ============
+        async function loadServerInfo() {
+            try {
+                const res = await fetch('/api/server-info');
+                const data = await res.json();
+                if (data.success) {
+                    serverName = data.server.name;
+                    serverNameDisplay.textContent = serverName;
+                    document.title = `Auto-Add - ${serverName}`;
+                }
+            } catch (err) {
+                console.error('Error loading server info:', err);
+                serverNameDisplay.textContent = 'Unknown';
+            }
+        }
+
+        // ============ ACCOUNT FUNCTIONS ============
+        async function loadAccounts() {
+            try {
+                const res = await fetch('/api/accounts');
+                const data = await res.json();
+                if (data.success) {
+                    accounts = data.accounts || [];
+                    accountCount.textContent = accounts.length + ' account' + (accounts.length !== 1 ? 's' : '');
+                    displayAccounts();
+                } else {
+                    addLog('Failed to load accounts', 'error');
+                }
+            } catch (err) {
+                console.error('Error loading accounts:', err);
+                addLog('Error loading accounts: ' + err.message, 'error');
+            }
+        }
+
+        function displayAccounts() {
+            if (!accounts.length) {
+                accountList.innerHTML = `
+                    <div class="empty-state">
+                        <span style="font-size: 3rem;">👤</span>
+                        <p style="margin-top: 10px;">No accounts found.</p>
+                        <a href="/login" style="color:#6ab2f2; text-decoration: none; display: inline-block; margin-top: 10px;">➕ Add an account</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            accounts.forEach(acc => {
+                const initial = (acc.name || '?').charAt(0).toUpperCase();
+                const isSelected = selectedAccount && selectedAccount.id === acc.id;
+                const autoAddEnabled = acc.auto_add_enabled;
+
+                html += `
+                    <div class="account-card ${isSelected ? 'selected' : ''}" onclick="selectAccount(${acc.id})">
+                        <div class="account-avatar">${escapeHtml(initial)}</div>
+                        <div class="account-info">
+                            <h4>${escapeHtml(acc.name || 'Unknown')}</h4>
+                            <p>${escapeHtml(acc.phone || '')}</p>
+                            ${autoAddEnabled ? '<span class="auto-add-badge active">🤖 Auto-Add ON</span>' : '<span class="auto-add-badge">⏸️ Auto-Add OFF</span>'}
+                        </div>
+                        <button class="remove-account-btn" onclick="event.stopPropagation(); removeAccount(${acc.id})" title="Remove account">✕</button>
+                    </div>
+                `;
+            });
+
+            accountList.innerHTML = html;
+        }
+
+        async function selectAccount(accountId) {
+            const account = accounts.find(a => a.id === accountId);
+            if (!account) return;
+
+            selectedAccount = account;
+            displayAccounts();
+            mainSettings.style.display = 'block';
+            noAccountMessage.style.display = 'none';
+
+            await loadSettings(accountId);
+            addLog(`Selected account: ${account.name}`, 'success');
+
+            // Start auto-refresh
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => refreshStats(), 30000);
+        }
+
+        async function removeAccount(accountId) {
+            if (!confirm('Are you sure you want to remove this account? This will stop all auto-add activities for this account.')) return;
+
+            try {
+                const res = await fetch('/api/remove-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Account removed successfully');
+                    if (selectedAccount && selectedAccount.id === accountId) {
+                        selectedAccount = null;
+                        mainSettings.style.display = 'none';
+                        noAccountMessage.style.display = 'flex';
+                        if (refreshInterval) clearInterval(refreshInterval);
+                    }
+                    addLog('Account removed', 'warning');
+                    await loadAccounts();
+                } else {
+                    showToast(data.error || 'Failed to remove account', 'error');
+                }
+            } catch (err) {
+                console.error('Error removing account:', err);
+                showToast('Error removing account', 'error');
+            }
+        }
+
+        // ============ SETTINGS FUNCTIONS ============
+        async function loadSettings(accountId) {
+            try {
+                const res = await fetch(`/api/auto-add-settings?accountId=${accountId}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    currentSettings = data.settings;
+                    
+                    autoAddToggle.checked = currentSettings.enabled || false;
+                    targetGroup.value = currentSettings.target_group || 'Abe_armygroup';
+                    delayRange.value = currentSettings.delay_seconds || 25;
+                    
+                    delayValue.textContent = delayRange.value + 's';
+                    delayDisplay.textContent = delayRange.value + 's';
+                    
+                    updateStats();
+                    updateStatus();
+                    updateGroupLink();
+                    
+                    addLog('Settings loaded successfully', 'success');
+                }
+            } catch (err) {
+                console.error('Error loading settings:', err);
+                addLog('Error loading settings: ' + err.message, 'error');
+            }
+        }
+
+        function updateStats() {
+            addedToday.textContent = (currentSettings.added_today || 0).toLocaleString();
+            totalAdded.textContent = (currentSettings.total_added || 0).toLocaleString();
+        }
+
+        function updateStatus() {
+            if (currentSettings.enabled) {
+                statusBox.style.display = 'flex';
+                statusBox.className = 'info-box success';
+                document.getElementById('statusIcon').textContent = '🚀';
+                document.getElementById('statusTitle').textContent = 'Auto-Add ACTIVE (UNLIMITED)';
+                document.getElementById('statusMessage').innerHTML = 
+                    `Adding members to <b>@${currentSettings.target_group}</b><br>
+                     📥 Today: <b>${(currentSettings.added_today || 0).toLocaleString()}</b> | 
+                     📊 Total: <b>${(currentSettings.total_added || 0).toLocaleString()}</b><br>
+                     ⏱️ Delay: <b>${currentSettings.delay_seconds || 25}s</b> | 
+                     🏷️ Server: <b>${serverName}</b>`;
+                warningBox.style.display = 'block';
+            } else {
+                statusBox.style.display = 'flex';
+                statusBox.className = 'info-box';
+                document.getElementById('statusIcon').textContent = '⏸️';
+                document.getElementById('statusTitle').textContent = 'Auto-Add Disabled';
+                document.getElementById('statusMessage').textContent = 'Enable auto-add to start adding members (UNLIMITED mode with 25s minimum delay)';
+                warningBox.style.display = 'none';
+            }
+        }
+
+        async function refreshStats() {
+            if (!selectedAccount) return;
+            
+            try {
+                const res = await fetch(`/api/auto-add-stats?accountId=${selectedAccount.id}`);
+                const data = await res.json();
+                if (data.success) {
+                    currentSettings.added_today = data.added_today || 0;
+                    currentSettings.total_added = data.total_added || 0;
+                    updateStats();
+                    if (currentSettings.enabled) updateStatus();
+                }
+            } catch (err) {
+                console.error('Error refreshing stats:', err);
+            }
+        }
+
+        async function checkGroup() {
+            updateGroupLink();
+            if (!selectedAccount) return;
+            
+            try {
+                const res = await fetch('/api/test-auto-add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId: selectedAccount.id })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    membersAvailable.textContent = (data.available_members || 0).toLocaleString();
+                    showToast(`Group found! ${data.available_members || 0} members available`, 'success');
+                    addLog(`Group check: ${data.available_members || 0} members available in @${data.target_group || currentSettings.target_group}`, 'success');
+                } else {
+                    showToast(data.error || 'Group not found', 'error');
+                    addLog('Group check failed: ' + (data.error || 'Not found'), 'error');
+                }
+            } catch (err) {
+                console.error('Error checking group:', err);
+                showToast('Error checking group', 'error');
+            }
+        }
+
+        async function toggleAutoAdd() {
+            if (!selectedAccount) return;
+            
+            currentSettings.enabled = autoAddToggle.checked;
+            await saveSettings(false);
+            updateStatus();
+            addLog(`Auto-add ${currentSettings.enabled ? 'ENABLED (UNLIMITED)' : 'DISABLED'}`, currentSettings.enabled ? 'success' : 'warning');
+        }
+
+        async function saveSettings(showToastMessage = true) {
+            if (!selectedAccount) return;
+
+            const settings = {
+                accountId: selectedAccount.id,
+                enabled: autoAddToggle.checked,
+                target_group: targetGroup.value.trim().replace('@', '').replace('https://t.me/', ''),
+                delay_seconds: parseInt(delayRange.value),
+                auto_join: true
+            };
+
+            try {
+                const res = await fetch('/api/auto-add-settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    currentSettings = { ...currentSettings, ...settings };
+                    updateStats();
+                    updateStatus();
+                    updateGroupLink();
+                    if (showToastMessage) showToast('Settings saved successfully');
+                    addLog('Settings saved - ' + (settings.enabled ? 'Auto-add ACTIVE' : 'Auto-add disabled'), 'success');
+                } else {
+                    showToast(data.error || 'Failed to save settings', 'error');
+                    addLog('Failed to save settings: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                console.error('Error saving settings:', err);
+                showToast('Error saving settings', 'error');
+            }
+        }
+
+        async function testConnection() {
+            if (!selectedAccount) {
+                showToast('Please select an account first', 'error');
+                return;
+            }
+
+            addLog('Testing connection...', 'info');
+
+            try {
+                const res = await fetch('/api/test-auto-add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accountId: selectedAccount.id })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    membersAvailable.textContent = (data.available_members || 0).toLocaleString();
+                    showToast(`✅ Found ${data.available_members || 0} available members`, 'success');
+                    addLog(`Test successful: ${data.available_members || 0} members available`, 'success');
+                } else {
+                    showToast(data.error || 'Test failed', 'error');
+                    addLog('Test failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                console.error('Error testing connection:', err);
+                showToast('Connection error', 'error');
+                addLog('Connection error during test', 'error');
+            }
+        }
+
+        async function sendManualReport() {
+            try {
+                const res = await fetch('/api/send-report');
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Report sent to Telegram', 'success');
+                    addLog('Manual report sent', 'success');
+                } else {
+                    showToast(data.error || 'Failed to send report', 'error');
+                }
+            } catch (err) {
+                console.error('Error sending report:', err);
+                showToast('Error sending report', 'error');
+            }
+        }
+
+        // ============ INITIALIZATION ============
+        window.addEventListener('load', () => {
+            loadServerInfo();
+            loadAccounts();
+            updateGroupLink();
+        });
+
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+        });
+
+        // Make functions available globally
+        window.selectAccount = selectAccount;
+        window.toggleAutoAdd = toggleAutoAdd;
+        window.saveSettings = saveSettings;
+        window.testConnection = testConnection;
+        window.checkGroup = checkGroup;
+        window.updateDelay = updateDelay;
+        window.removeAccount = removeAccount;
+        window.clearLogDisplay = clearLogDisplay;
+        window.refreshLog = refreshLog;
+        window.sendManualReport = sendManualReport;
+    </script>
+</body>
+</html>
